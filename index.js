@@ -11,13 +11,13 @@ const pipe = (...fns) => firstArg => fns.reduce((returnValue, fn) => fn(returnVa
 // function can be used in various ways to create html elements
 // ex. makeTag('h1')('hello world') => <h1>hello world</h1>
 const makeTag = tag => str => `<${tag}>${str}</${tag}>`
-/*
+
 const titleTag = makeTag('h1')
 const emTag = makeTag('em')
 const authorTag = makeTag ('h3')
 const stanzaTag = makeTag ('div')
 const linesTag = makeTag ('p')
-const linebreak = makeTag ('br') */
+const linebreak = makeTag ('br')
 
 // complete this function
 //  Will accept API and output a single string of html
@@ -41,27 +41,55 @@ const makePoemHTML = async (poemApp) => {
     //console.log(typeof(splitJSON))
     //eturn stringJSON
     
+    const poemHTML = ({
+      title,
+      author,
+      lines
+    }) => {
+  
+      const titleTag = makeTag ('h1')
+      titleTag.innerHTML = `${title}`
+      poemEl.appendChild(titleTag)
+      
+  
+      const byTag = makeTag ('em')
+      byTag.innerHTML = 'by'
+      poemEl.appendChild(byTag)
+  
+      const authorTag = makeTag ('h3')
+      authorTag.innerHTML = `by ${author}`
+      poemEl.appendChild(authorTag)
+     
+      
+      const stanzaTag = makeTag ('div')
+      poemEl.appendChild(lineTag)
+      lines.forEach(line => {
+        const lineTag = makeTag ('p')
+        lineTag.innerHTML = line;
+        stanzaTag.appendChild(lineTag)
+      });
+      
+      const breakElement = makeTag ('br')
+    }
+  
+   
+  
   } catch (error) {
     console.log('unable to get data', error)
     return ''
-  }
+  }}
 
-  const poemHTML = (poemData) => {
-    const poemHTMLStrings = poemData.map(({title, author, lines}) => {
-      const blockHTML = lines.map(makeTag('p')).join('br');
-      return `${makeTag('h2')(title)}${makeTag('h3')(`by ${author}`)}${blockHTML}`
-    });
   
-    return poemHTMLStrings.join('')
-  }
-}
-
-
-
-
 
 // attach a click event to #get-poem
 getPoemBtn.onclick = async function() {
   // renders the HTML string returned by makePoemHTML to #poem
   poemEl.innerHTML = makePoemHTML(await getJSON(poemURL))
 }
+ 
+
+
+
+
+
+ 
