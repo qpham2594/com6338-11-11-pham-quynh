@@ -12,84 +12,59 @@ const pipe = (...fns) => firstArg => fns.reduce((returnValue, fn) => fn(returnVa
 // ex. makeTag('h1')('hello world') => <h1>hello world</h1>
 const makeTag = tag => str => `<${tag}>${str}</${tag}>`
 
-const titleTag = makeTag('h1')
-const emTag = makeTag('em')
-const authorTag = makeTag ('h3')
-const stanzaTag = makeTag ('div')
-const linesTag = makeTag ('p')
-const linebreak = makeTag ('br')
 
 // complete this function
-//  Will accept API and output a single string of html
-// String should consist of h2 element for title, em element "by" and h3 element with author's name, p element for each stanza separated by <br>
-// Last line in each paragraph does NOT contain a linebreak element after it
-
-// Must use makeTag adn pipe at least once, can also use split, join, and map to make short work of separating poem into stanzas and inserting linebreaks
-// "" to separate stanzas 
-
-// div 'poem' to h2 to h3 to em within h3, to p follow by linebreak after each line except the last line
 const makePoemHTML = async (poemApp) => {
-  
   try {
     const AppData = await getJSON(poemURL);
-    const stringJSON = JSON.stringify(AppData)
-    console.log(AppData)
-    console.log(stringJSON)
-    return poemHTML(AppData)
+    //const poemData = {tile, author, lines}
+   // return poemData
+    console.log(AppData[0]);
 
-    //const splitJSON = stringJSON.split()
-    //console.log(typeof(splitJSON))
-    //eturn stringJSON
+    const poemTitle = AppData[0].title;
+    const titleTag = makeTag('h2')(poemTitle);
+    console.log(titleTag)
+
+    const author = AppData[0].author;
+    const emAndH3Tag = pipe(makeTag('em'), makeTag('h3'));
+    const poemEmphasis = emAndH3Tag(`by ${author}`);
+    console.log(poemEmphasis)
+
+    const linesArray = AppData[0].lines;
+    const poemStanzas = linesArray.reduce((stanzaBlock, line) => {
+      if (line === "") {
+        // If we encounter an empty line, join the current stanza lines and wrap with <p>
+        if (stanzaBlock.currentStanza.length > 0) {
+          const stanzaContent = stanzaBlock.currentStanza.join('<br>');
+          stanzaBlock.stanzas.push(`<p>${stanzaContent}</p>`);
+        }
+        stanzaBlock.currentStanza = []; // Reset the current stanza lines
+      } else {
+        stanzaBlock.currentStanza.push(line); // Add the non-empty line to the current stanza
+      }
+      return stanzaBlock;
+    }, { stanzas: [], currentStanza: [] });
     
-    const poemHTML = ({
-      title,
-      author,
-      lines
-    }) => {
-  
-      const titleTag = makeTag ('h1')
-      titleTag.innerHTML = `${title}`
-      poemEl.appendChild(titleTag)
-      
-  
-      const byTag = makeTag ('em')
-      byTag.innerHTML = 'by'
-      poemEl.appendChild(byTag)
-  
-      const authorTag = makeTag ('h3')
-      authorTag.innerHTML = `by ${author}`
-      poemEl.appendChild(authorTag)
-     
-      
-      const stanzaTag = makeTag ('div')
-      poemEl.appendChild(lineTag)
-      lines.forEach(line => {
-        const lineTag = makeTag ('p')
-        lineTag.innerHTML = line;
-        stanzaTag.appendChild(lineTag)
-      });
-      
-      const breakElement = makeTag ('br')
+    // Handle the last stanza in case the poem doesn't end with an empty line
+    if (poemStanzas.currentStanza.length > 0) {
+      const stanzaContent = poemStanzas.currentStanza.join('<br>');
+      poemStanzas.stanzas.push(`<p>${stanzaContent}</p>`);
     }
-  
-   
+    
+    // Join the stanzas to form the whole poem
+    const wholePoem = poemStanzas.stanzas.join('');
+    console.log(wholePoem)
+
+    // Set the innerHTML of poemEl directly
+    poemEl.innerHTML = titleTag + poemEmphasis + wholePoem;
   
   } catch (error) {
-    console.log('unable to get data', error)
-    return ''
-  }}
-
-  
+    console.log('unable to get data', error);
+  }
+};
 
 // attach a click event to #get-poem
 getPoemBtn.onclick = async function() {
   // renders the HTML string returned by makePoemHTML to #poem
   poemEl.innerHTML = makePoemHTML(await getJSON(poemURL))
 }
- 
-
-
-
-
-
- 
