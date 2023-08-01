@@ -14,23 +14,23 @@ const makeTag = tag => str => `<${tag}>${str}</${tag}>`
 
 
 // complete this function
-const makePoemHTML = async (poemApp) => {
+const makePoemHTML = (poemApp) => {
   try {
-    const AppData = await getJSON(poemURL);
+    //const poemApp = await getJSON(poemURL);
     //const poemData = {tile, author, lines}
    // return poemData
-    console.log(AppData[0]);
-
-    const poemTitle = AppData[0].title;
+    console.log(poemApp[0]);
+  
+    const poemTitle = poemApp[0].title;
     const titleTag = makeTag('h2')(poemTitle);
     console.log(titleTag)
 
-    const author = AppData[0].author;
+    const author = poemApp[0].author;
     const emAndH3Tag = pipe(makeTag('em'), makeTag('h3'));
     const poemEmphasis = emAndH3Tag(`by ${author}`);
     console.log(poemEmphasis)
 
-    const linesArray = AppData[0].lines;
+    const linesArray = poemApp[0].lines;
     const poemStanzas = linesArray.reduce((stanzaBlock, line) => {
       if (line === "") {
         // If we encounter an empty line, join the current stanza lines and wrap with <p>
@@ -56,7 +56,9 @@ const makePoemHTML = async (poemApp) => {
     console.log(wholePoem)
 
     // Set the innerHTML of poemEl directly
-    poemEl.innerHTML = titleTag + poemEmphasis + wholePoem;
+    const wholeHTML = titleTag + poemEmphasis + wholePoem;
+    return wholeHTML
+   // return poemApp[0]
   
   } catch (error) {
     console.log('unable to get data', error);
